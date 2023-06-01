@@ -9,6 +9,23 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.Autonomous;
+import frc.robot.commands.GripCommand;
+import frc.robot.commands.ManipulatorCommand;
+import frc.robot.commands.TeleopSwerve;
+import frc.robot.subsystems.GripSubsystem;
+import frc.robot.subsystems.ManipulatorSubsystem;
+import frc.robot.subsystems.SwerveSubsystem;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -18,9 +35,21 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends TimedRobot {
     public static SwerveConfigs swerveConfigs;
 
-    private Command m_autonomousCommand;
+   // private Command m_autonomousCommand;
 
-    private RobotContainer m_robotContainer;
+   // private RobotContainer m_robotContainer;
+
+
+    private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+    private final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem();
+    private final GripSubsystem gripSubsystem = new GripSubsystem();
+
+    private final Joystick joystick = new Joystick(0);
+    private final XboxController controller = new XboxController(1);
+
+    private final boolean robotOriented = false;
+
+    private final SendableChooser<String> autoChooser = new SendableChooser<>();
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -31,7 +60,7 @@ public class Robot extends TimedRobot {
         swerveConfigs = new SwerveConfigs();
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         // autonomous chooser on the dashboard.
-        m_robotContainer = new RobotContainer();
+        //m_robotContainer = new RobotContainer();
         //CameraServer.startAutomaticCapture();
     }
 
@@ -48,7 +77,7 @@ public class Robot extends TimedRobot {
         // commands, running already-scheduled commands, removing finished or interrupted commands,
         // and running subsystem periodic() methods.  This must be called from the robot's periodic
         // block in order for anything in the Command-based framework to work.
-        CommandScheduler.getInstance().run();
+        //CommandScheduler.getInstance().run();
     }
 
     /** This function is called once each time the robot enters Disabled mode. */
@@ -61,12 +90,12 @@ public class Robot extends TimedRobot {
     /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
     @Override
     public void autonomousInit() {
-        m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+       // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
         // Schedule the autonomous command
-        if (m_autonomousCommand != null) {
-            m_autonomousCommand.schedule();
-        }
+       // if (m_autonomousCommand != null) {
+         //   m_autonomousCommand.schedule();
+        //}
     }
 
     /** This function is called periodically during autonomous. */
@@ -75,18 +104,50 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        // This makes sure that the autonomous stops running when
-        // teleop starts running. If you want the autonomous to
-        // continue until interrupted by another command, remove
-        // this line or comment it out.
-        if (m_autonomousCommand != null) {
-            m_autonomousCommand.cancel();
-        }
+        autoChooser.setDefaultOption("Do Nothing", "nothing");
+        autoChooser.addOption("Start L/R: Leave Community", "leaveC");
+        autoChooser.addOption("Start Left: Score High", "scoreHighL");
+        autoChooser.addOption("Start Right: Score High", "scoreHighR");
+        autoChooser.addOption("Start Middle: Score High, Balance", "scoreHighMBalance");
+        autoChooser.addOption("Start Middle: Score High", "scoreHighM");
+        autoChooser.addOption("Start Middle: Score Middle", "scoreMiddleM");
+        autoChooser.addOption("Forgot To Preload 😭", "forgotPreload");
+        autoChooser.addOption("Start Right: Score Middle", "scoreMidR");
+        autoChooser.addOption("Start Left: Score Middle", "scoreMidL");
+        Shuffleboard.getTab("Autonomous").add(autoChooser);
+
+        //configureButtonBindings();
+
+  
+        
     }
 
     /** This function is called periodically during operator control. */
     @Override
-    public void teleopPeriodic() {}
+    public void teleopPeriodic() {
+
+        swerveSubsystem.setDefaultCommand(
+            new TeleopSwerve(
+                swerveSubsystem,
+                () -> joystick.getY(),
+                () -> joystick.getX(),
+                () -> joystick.getTwist(),
+                () -> joystick.getRawButton(12),
+                () -> robotOriented
+            )
+        );
+        manipulatorSubsystem.setDefaultCommand(new ManipulatorCommand(
+            manipulatorSubsystem,
+            () -> -MathUtil.applyDeadband(controller.getLeftY(), 0.2),
+            () -> translateBumpers(controller.getLeftBumper(), controller.getRightBumper()),
+            () -> -MathUtil.applyDeadband(controller.getRawAxis(5), 0.2)
+        ));
+
+        gripSubsystem.setDefaultCommand(new GripCommand(
+            gripSubsystem,
+            () -> translateTriggers(controller.getLeftTriggerAxis(), controller.getRightTriggerAxis())));
+    }
+    }
 
     @Override
     public void testInit() {
@@ -97,4 +158,20 @@ public class Robot extends TimedRobot {
     /** This function is called periodically during test mode. */
     @Override
     public void testPeriodic() {}
+
+    public Command getAutonomousCommand() {
+        swerveSubsystem.zeroGyro();
+        return new Autonomous(autoChooser.getSelected(), swerveSubsystem, manipulatorSubsystem, gripSubsystem);
+    }
+
+    private static double translateTriggers(double left, double right) {
+        return -left + right;
+    }
+
+    private static double translateBumpers(boolean left, boolean right) {
+        double result = 0.0;
+        if (left) result--;
+        if (right) result++;
+        return result;
+    }
 }
