@@ -25,6 +25,7 @@ import frc.robot.subsystems.SwerveSubsystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.math.geometry.Translation2d;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -33,8 +34,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
  * project.
  */
 public class Robot extends TimedRobot {
-    public static SwerveConfigs swerveConfigs;
-
+    public static SwerveConfigs swerveConfigs = new SwerveConfigs();
+    //swerveConfigs = new SwerveConfigs();
    // private Command m_autonomousCommand;
 
    // private RobotContainer m_robotContainer;
@@ -118,7 +119,7 @@ public class Robot extends TimedRobot {
 
         //configureButtonBindings();
 
-  
+        
         
     }
 
@@ -126,16 +127,18 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
 
-        swerveSubsystem.setDefaultCommand(
-            new TeleopSwerve(
+        processDrive(swerveSubsystem, joystick.getY(), joystick.getX(), joystick.getY(), joystick.getRawButton(12), robotOriented);
+
+        /* swerveSubsystem.
                 swerveSubsystem,
                 () -> joystick.getY(),
-                () -> joystick.getX(),
+                () -> joystick.getX()
                 () -> joystick.getTwist(),
                 () -> joystick.getRawButton(12),
                 () -> robotOriented
             )
-        );
+        ); */
+        /*
         manipulatorSubsystem.setDefaultCommand(new ManipulatorCommand(
             manipulatorSubsystem,
             () -> -MathUtil.applyDeadband(controller.getLeftY(), 0.2),
@@ -146,8 +149,9 @@ public class Robot extends TimedRobot {
         gripSubsystem.setDefaultCommand(new GripCommand(
             gripSubsystem,
             () -> translateTriggers(controller.getLeftTriggerAxis(), controller.getRightTriggerAxis())));
+            */
     }
-    }
+    
 
     @Override
     public void testInit() {
@@ -174,4 +178,29 @@ public class Robot extends TimedRobot {
         if (right) result++;
         return result;
     }
+
+    private static void processDrive(SwerveSubsystem s_Swerve, Double Y, Double X, Double Z, Boolean slow, Boolean roboticCentric){
+        double translationVal = MathUtil.applyDeadband(Y, Constants.xyDeadband);
+        double strafeVal = MathUtil.applyDeadband(X, Constants.xyDeadband);
+        double rotationVal = MathUtil.applyDeadband(Z, Constants.twistDeadband);
+
+        if (slow) {
+            translationVal *= 0.4;
+            strafeVal *= 0.4;
+            rotationVal *= 0.3;
+        } else {
+            translationVal *= 0.8;
+            strafeVal *= 0.8;
+            rotationVal *= 0.6;
+        }
+
+        s_Swerve.drive(
+            new Translation2d(translationVal, strafeVal).times(Constants.Swerve.maxSpeed),
+            rotationVal * Constants.Swerve.maxAngularVelocity,
+            !roboticCentric,
+            true
+        );
+    }
+
+    
 }
