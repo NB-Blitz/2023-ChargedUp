@@ -127,7 +127,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
 
-        processDrive(swerveSubsystem, joystick.getY(), joystick.getX(), joystick.getY(), joystick.getRawButton(12), robotOriented);
+        processDrive(swerveSubsystem, joystick.getY(), joystick.getX(), joystick.getZ(), joystick.getRawButton(12), robotOriented);
 
         /* swerveSubsystem.
                 swerveSubsystem,
