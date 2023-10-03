@@ -26,8 +26,8 @@ public class GripSubsystem extends SubsystemBase {
         this.gripSpeed = gripSpeed;
     }
 
-    @Override
-    public void periodic() {
+
+    public void runGrip() {
         if (gripSpeed > 0 /*&& getGripPos() < MAX_GRIP_ENCODER_VALUE*/) {
             gripMotor.set(TalonSRXControlMode.PercentOutput, gripSpeed * Manipulator.GRIP_SPEED_MULTIPLIER);
         } else if (gripSpeed < 0 /*&& getGripPos() > MIN_GRIP_ENCODER_VALUE*/) {

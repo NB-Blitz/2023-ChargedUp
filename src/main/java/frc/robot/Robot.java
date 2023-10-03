@@ -138,6 +138,16 @@ public class Robot extends TimedRobot {
                 () -> robotOriented
             )
         ); */
+
+        //messy but it should work
+        manipulatorSubsystem.move(MathUtil.applyDeadband(controller.getLeftY(), 0.2), 
+        translateBumpers(controller.getLeftBumper(), controller.getRightBumper()), 
+        MathUtil.applyDeadband(controller.getRawAxis(5), 0.2));
+
+        manipulatorSubsystem.runManipulator();
+
+
+
         /*
         manipulatorSubsystem.setDefaultCommand(new ManipulatorCommand(
             manipulatorSubsystem,
@@ -145,7 +155,13 @@ public class Robot extends TimedRobot {
             () -> translateBumpers(controller.getLeftBumper(), controller.getRightBumper()),
             () -> -MathUtil.applyDeadband(controller.getRawAxis(5), 0.2)
         ));
-
+        */
+        
+        //
+        gripSubsystem.move(translateTriggers(controller.getLeftTriggerAxis(), controller.getRightTriggerAxis()));
+        gripSubsystem.runGrip();
+        
+        /*        
         gripSubsystem.setDefaultCommand(new GripCommand(
             gripSubsystem,
             () -> translateTriggers(controller.getLeftTriggerAxis(), controller.getRightTriggerAxis())));

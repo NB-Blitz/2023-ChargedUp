@@ -104,8 +104,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
         targetTelescopeLength = Manipulator.TELESCOPE_PLAYER;
     }
 
-    @Override
-    public void periodic() {
+    public void runManipulator() {
         if (isShoulderHome()) {
             shoulderEncoder.setPosition(0);
         }
