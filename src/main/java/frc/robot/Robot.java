@@ -26,6 +26,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.Timer;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -51,7 +53,8 @@ public class Robot extends TimedRobot {
     private final boolean robotOriented = false;
 
     private final SendableChooser<String> autoChooser = new SendableChooser<>();
-
+    
+    Timer AutoTimer = new Timer();
     /**
      * This function is run when the robot is first started up and should be used for any
      * initialization code.
@@ -97,11 +100,33 @@ public class Robot extends TimedRobot {
        // if (m_autonomousCommand != null) {
          //   m_autonomousCommand.schedule();
         //}
+
+        
+        AutoTimer.reset();
     }
 
     /** This function is called periodically during autonomous. */
     @Override
-    public void autonomousPeriodic() {}
+    public void autonomousPeriodic() {
+        //very basic, pretty bad auto.
+        double Time = AutoTimer.get();
+        Double AutoY = 0.0;
+        Double AutoX = 0.0;
+        Double AutoZ = 0.0;
+        if(Time < 1.5){
+            AutoY = .3;
+        }
+        else if(Time < 3){
+            AutoZ = .4;
+        }
+        else{
+             AutoY = 0.0;
+             AutoX = 0.0;
+             AutoZ = 0.0;
+        }
+
+        processDrive(swerveSubsystem, AutoY, AutoX, AutoZ, false, robotOriented);
+    }
 
     @Override
     public void teleopInit() {
