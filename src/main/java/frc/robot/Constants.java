@@ -19,7 +19,7 @@ public final class Constants {
         public static final boolean invertGyro = true; // Always ensure Gyro is CCW+ CW-
 
         public static final SDSModuleConstants chosenModule =
-            SDSModuleConstants.SDSMK4(SDSModuleConstants.driveGearRatios.SDSMK4_L2);
+            SDSModuleConstants.SDSMK4(SDSModuleConstants.driveGearRatios.SDSMK4_L1);
 
         /* Drivetrain Constants */
         public static final double trackWidth = Units.inchesToMeters(18.5);
@@ -66,7 +66,7 @@ public final class Constants {
         public static final double angleKF = chosenModule.angleKF;
 
         /* Drive Motor PID Values */
-        public static final double driveKP = 0.24; //TODO: Tune as we want
+        public static final double driveKP = 0.24;
         public static final double driveKI = 0.0;
         public static final double driveKD = 0.0;
         public static final double driveKF = 0.16;

@@ -43,13 +43,13 @@ public class TeleopSwerve extends CommandBase {
         double rotationVal = MathUtil.applyDeadband(rotationSup.getAsDouble(), Constants.twistDeadband);
 
         if (slowModeSup.getAsBoolean()) {
-            translationVal *= 0.4;
-            strafeVal *= 0.4;
-            rotationVal *= 0.3;
+            translationVal *= 0.6;
+            strafeVal *= 0.6;
+            rotationVal *= 0.5;
         } else {
-            translationVal *= 0.8;
-            strafeVal *= 0.8;
-            rotationVal *= 0.6;
+            translationVal *= 1;
+            strafeVal *= 1;
+            rotationVal *= 1;
         }
 
         /* Drive */
