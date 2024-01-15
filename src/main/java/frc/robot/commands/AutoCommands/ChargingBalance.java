@@ -2,11 +2,11 @@ package frc.robot.commands.AutoCommands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.SwerveSubsystem;
 
-public class ChargingBalance extends CommandBase {
+public class ChargingBalance extends Command {
     private static final double INVERTED_DEADBAND = 11.0;
     private static final double NON_INVERTED_DEADBAND = 12.0;
     private final double MAX_SPEED = 0.15;

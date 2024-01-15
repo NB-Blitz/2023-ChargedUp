@@ -1,6 +1,6 @@
 package frc.robot;
 
-import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -12,7 +12,7 @@ import frc.lib.util.SwerveModuleConstants;
 
 public final class Constants {
     public static final double xyDeadband = 0.1;
-    public static final double twistDeadband = 0.35;
+    public static final double twistDeadband = 0.4;
 
     public static final class Swerve {
         public static final int pigeonID = 1;
@@ -98,10 +98,10 @@ public final class Constants {
         public static final IdleMode driveIdleMode = IdleMode.kBrake;
 
         /* Module Specific Constants */
-        private static double frontLeftOffset = 291.3 - 180;
-        private static double frontRightOffset = 242.3;
-        private static double backLeftOffset = 23.1 + 180;
-        private static double backRightOffset = 21.3;
+        private static double frontLeftOffset = 110.7;
+        private static double frontRightOffset = 241.9;
+        private static double backLeftOffset = 199.68;
+        private static double backRightOffset = 25.5;
 
         /* Front Left Module - Module 0 */
         public static final class Mod0 {

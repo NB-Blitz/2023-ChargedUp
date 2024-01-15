@@ -1,29 +1,29 @@
-package frc.robot.commands;
+// package frc.robot.commands;
 
-import java.util.function.DoubleSupplier;
+// import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.GripSubsystem;
+// import edu.wpi.first.wpilibj2.command.Command;
+// import frc.robot.subsystems.GripSubsystem;
 
-public class GripCommand extends CommandBase {
-    private final GripSubsystem gripSubsystem;
+// public class GripCommand extends Command {
+//     private final GripSubsystem gripSubsystem;
 
-    private final DoubleSupplier gripSupplier;
+//     private final DoubleSupplier gripSupplier;
     
-    public GripCommand(GripSubsystem gripSubsystem, DoubleSupplier gripSupplier) {
-        this.gripSubsystem = gripSubsystem;
-        this.gripSupplier = gripSupplier;
+//     public GripCommand(GripSubsystem gripSubsystem, DoubleSupplier gripSupplier) {
+//         this.gripSubsystem = gripSubsystem;
+//         this.gripSupplier = gripSupplier;
 
-        addRequirements(gripSubsystem);
-    }
+//         addRequirements(gripSubsystem);
+//     }
 
-    @Override
-    public void execute() {
-        gripSubsystem.move(gripSupplier.getAsDouble());
-    }
+//     @Override
+//     public void execute() {
+//         gripSubsystem.move(gripSupplier.getAsDouble());
+//     }
 
-    @Override
-    public void end(boolean interrupted) {
-        gripSubsystem.move(0);
-    }
-}
+//     @Override
+//     public void end(boolean interrupted) {
+//         gripSubsystem.move(0);
+//     }
+// }

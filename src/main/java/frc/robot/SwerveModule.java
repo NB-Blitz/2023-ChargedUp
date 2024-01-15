@@ -10,7 +10,7 @@ import frc.lib.util.SwerveModuleConstants;
 
 import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class SwerveModule {

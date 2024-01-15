@@ -10,12 +10,12 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.Autonomous;
-import frc.robot.commands.GripCommand;
-import frc.robot.commands.ManipulatorCommand;
+//import frc.robot.commands.Autonomous;
+//import frc.robot.commands.GripCommand;
+//import frc.robot.commands.ManipulatorCommand;
 import frc.robot.commands.TeleopSwerve;
-import frc.robot.subsystems.GripSubsystem;
-import frc.robot.subsystems.ManipulatorSubsystem;
+//import frc.robot.subsystems.GripSubsystem;
+//import frc.robot.subsystems.ManipulatorSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -30,11 +30,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 public class RobotContainer {
     // The robot's subsystems and commands are defined here...
     private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
-    private final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem();
-    private final GripSubsystem gripSubsystem = new GripSubsystem();
+    //private final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem();
+    //private final GripSubsystem gripSubsystem = new GripSubsystem();
 
     private final Joystick joystick = new Joystick(0);
-    private final XboxController controller = new XboxController(1);
+    //private final XboxController controller = new XboxController(1);
 
     private final boolean robotOriented = false;
 
@@ -72,16 +72,16 @@ public class RobotContainer {
             )
         );
         
-        manipulatorSubsystem.setDefaultCommand(new ManipulatorCommand(
-            manipulatorSubsystem,
-            () -> -MathUtil.applyDeadband(controller.getLeftY(), 0.2),
-            () -> translateBumpers(controller.getLeftBumper(), controller.getRightBumper()),
-            () -> -MathUtil.applyDeadband(controller.getRawAxis(5), 0.2)
-        ));
+        // manipulatorSubsystem.setDefaultCommand(new ManipulatorCommand(
+        //     manipulatorSubsystem,
+        //     () -> -MathUtil.applyDeadband(controller.getLeftY(), 0.2),
+        //     () -> translateBumpers(controller.getLeftBumper(), controller.getRightBumper()),
+        //     () -> -MathUtil.applyDeadband(controller.getRawAxis(5), 0.2)
+        // ));
 
-        gripSubsystem.setDefaultCommand(new GripCommand(
-            gripSubsystem,
-            () -> translateTriggers(controller.getLeftTriggerAxis(), controller.getRightTriggerAxis())));
+        // gripSubsystem.setDefaultCommand(new GripCommand(
+        //     gripSubsystem,
+        //     () -> translateTriggers(controller.getLeftTriggerAxis(), controller.getRightTriggerAxis())));
     }
 
     /**
@@ -95,28 +95,28 @@ public class RobotContainer {
         new JoystickButton(joystick, 11)
             .onTrue(new InstantCommand(() -> swerveSubsystem.zeroGyro()));
         
-        // A sets manipulator to home position
-        new JoystickButton(controller, 1)
-            .onTrue(new InstantCommand(() -> manipulatorSubsystem.setHome()));
+        // // A sets manipulator to home position
+        // new JoystickButton(controller, 1)
+        //     .onTrue(new InstantCommand(() -> manipulatorSubsystem.setHome()));
 
-        // X sets manipulator to floor position
-        new JoystickButton(controller, 3)
-            .onTrue(new InstantCommand(() -> manipulatorSubsystem.setFloor()));
+        // // X sets manipulator to floor position
+        // new JoystickButton(controller, 3)
+        //     .onTrue(new InstantCommand(() -> manipulatorSubsystem.setFloor()));
 
-        // Y sets manipulator to lower scoring position
-        new JoystickButton(controller, 4)
-            .onTrue(new InstantCommand(() -> manipulatorSubsystem.setTwo()));
+        // // Y sets manipulator to lower scoring position
+        // new JoystickButton(controller, 4)
+        //     .onTrue(new InstantCommand(() -> manipulatorSubsystem.setTwo()));
 
-        // B sets manipulator to higher scoring position
-        new JoystickButton(controller, 2)
-            .onTrue(new InstantCommand(() -> manipulatorSubsystem.setThree()));
+        // // B sets manipulator to higher scoring position
+        // new JoystickButton(controller, 2)
+        //     .onTrue(new InstantCommand(() -> manipulatorSubsystem.setThree()));
 
-        // Right joystick button sets manipulator to player station position
-        new JoystickButton(controller, 8)
-            .onTrue(new InstantCommand(() -> manipulatorSubsystem.setPlayerShelf()));
+        // // Right joystick button sets manipulator to player station position
+        // new JoystickButton(controller, 8)
+        //     .onTrue(new InstantCommand(() -> manipulatorSubsystem.setPlayerShelf()));
 
-        new JoystickButton(controller, 7)
-            .onTrue(new InstantCommand(() -> manipulatorSubsystem.killWrist(true)));
+        // new JoystickButton(controller, 7)
+        //     .onTrue(new InstantCommand(() -> manipulatorSubsystem.killWrist(true)));
     }
 
     /**
@@ -126,7 +126,8 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         swerveSubsystem.zeroGyro();
-        return new Autonomous(autoChooser.getSelected(), swerveSubsystem, manipulatorSubsystem, gripSubsystem);
+        //return new Autonomous(autoChooser.getSelected(), swerveSubsystem, manipulatorSubsystem, gripSubsystem);
+        return new InstantCommand();
     }
 
     private static double translateTriggers(double left, double right) {
