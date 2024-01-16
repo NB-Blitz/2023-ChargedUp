@@ -1,8 +1,8 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.sensors.WPI_CANCoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.RelativeEncoder;
@@ -11,20 +11,26 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import static com.revrobotics.SparkMaxLimitSwitch.Type.*;
 import static com.revrobotics.SparkMaxRelativeEncoder.Type.*;
 
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.*;
 
+import com.revrobotics.REVPhysicsSim;
+import com.ctre.phoenix.motorcontrol.TalonSRXSimCollection;
+import com.ctre.phoenix.sensors.CANCoderSimCollection;
+
+
 public class ManipulatorSubsystem extends SubsystemBase {
     private final CANSparkMax shoulderMotor;
     private final CANSparkMax telescopeMotor;
-    private final TalonSRX wristMotor;
+    private final WPI_TalonSRX wristMotor;
 
     private final RelativeEncoder shoulderEncoder;
     private final RelativeEncoder telescopeEncoder;
-    private final CANCoder wristEncoder;
+    private final WPI_CANCoder wristEncoder;
 
     private final ColorSensorV3 shoulderSensor;
     private final SparkMaxLimitSwitch telescopeSwitch;
@@ -45,12 +51,17 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
         shoulderMotor = new CANSparkMax(Manipulator.SHOULDER_MOTOR_ID, MotorType.kBrushless);
         telescopeMotor = new CANSparkMax(Manipulator.TELESCOPE_MOTOR_ID, MotorType.kBrushless);
-        wristMotor = new TalonSRX(Manipulator.WRIST_MOTOR_ID);
+        wristMotor = new WPI_TalonSRX(Manipulator.WRIST_MOTOR_ID);
         shoulderEncoder = shoulderMotor.getEncoder(kHallSensor, 42);
         telescopeEncoder = telescopeMotor.getEncoder(kHallSensor, 42);
-        wristEncoder = new CANCoder(Manipulator.WRIST_ENCODER_ID);
+        wristEncoder = new WPI_CANCoder(Manipulator.WRIST_ENCODER_ID);
         shoulderSensor = new ColorSensorV3(I2C.Port.kOnboard);
         telescopeSwitch = telescopeMotor.getReverseLimitSwitch(kNormallyClosed);
+
+        REVPhysicsSim.getInstance().addSparkMax(shoulderMotor, DCMotor.getNEO(1));
+        REVPhysicsSim.getInstance().addSparkMax(telescopeMotor, DCMotor.getNEO(1));
+        TalonSRXSimCollection wristMotorSim = wristMotor.getSimCollection();
+        CANCoderSimCollection wristEncoderSim = wristEncoder.getSimCollection();
 
         shoulderEncoder.setPositionConversionFactor(Manipulator.SHOULDER_ANGLE_SCALE);
 

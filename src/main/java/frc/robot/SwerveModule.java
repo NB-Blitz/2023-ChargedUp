@@ -4,14 +4,19 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.RobotBase;
 import frc.lib.util.REVUtils;
 import frc.lib.util.SwerveModuleConstants;
 
-import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.WPI_CANCoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.jni.RevJNIWrapper;
+
+import com.revrobotics.REVPhysicsSim;
+import com.ctre.phoenix.sensors.CANCoderSimCollection;
 
 public class SwerveModule {
     public int moduleNumber;
@@ -20,7 +25,8 @@ public class SwerveModule {
 
     private CANSparkMax mAngleMotor;
     private CANSparkMax mDriveMotor;
-    private CANCoder angleEncoder;
+    private WPI_CANCoder angleEncoder;
+    private CANCoderSimCollection simCoder;
 
     //SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(Constants.Swerve.driveKS, Constants.Swerve.driveKV, Constants.Swerve.driveKA);
 
@@ -29,7 +35,7 @@ public class SwerveModule {
         this.angleOffset = moduleConstants.angleOffset;
         
         /* Angle Encoder Config */
-        angleEncoder = new CANCoder(moduleConstants.cancoderID);
+        angleEncoder = new WPI_CANCoder(moduleConstants.cancoderID);
         configAngleEncoder();
 
         /* Angle Motor Config */
@@ -41,6 +47,12 @@ public class SwerveModule {
         configDriveMotor();
 
         lastAngle = getState().angle;
+
+        if (RobotBase.isSimulation()) {
+          REVPhysicsSim.getInstance().addSparkMax(mAngleMotor, DCMotor.getNEO(1));
+          REVPhysicsSim.getInstance().addSparkMax(mDriveMotor, DCMotor.getNEO(1));
+          simCoder = angleEncoder.getSimCollection();
+        }
     }
 
     public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop) {
@@ -48,7 +60,35 @@ public class SwerveModule {
         desiredState = REVUtils.optimize(desiredState, getState().angle); 
         setAngle(desiredState);
         setSpeed(desiredState, isOpenLoop);
+
+        if (RobotBase.isSimulation()){
+            //simUpdateDrivePosition(desiredState);
+            //simTurnPosition(desiredState.angle);
+        }
     }
+
+    private void simUpdateDrivePosition(SwerveModuleState state) {
+        int simVelocity =(int)(state.speedMetersPerSecond/10);
+        simCoder.setVelocity(simVelocity);
+        int distancePer20Ms = simVelocity / 5;
+        simCoder.addPosition(distancePer20Ms);
+    }
+
+    /*private void simTurnPosition(double angle) {
+        if (angle != m_currentAngle && m_simTurnAngleIncrement == 0) {
+            m_simAngleDifference = angle - m_currentAngle;
+            m_simTurnAngleIncrement = m_simAngleDifference / 20.0;// 10*20ms = .2 sec move time
+        }
+      
+        if (m_simTurnAngleIncrement != 0) {
+            m_currentAngle += m_simTurnAngleIncrement;
+      
+            if ((Math.abs(angle - m_currentAngle)) < .1) {
+                m_currentAngle = angle;
+                m_simTurnAngleIncrement = 0;
+            }
+        }
+    }*/
 
     private void setSpeed(SwerveModuleState desiredState, boolean isOpenLoop) {
         if (isOpenLoop) {
@@ -67,7 +107,7 @@ public class SwerveModule {
         lastAngle = angle;
     }
 
-    private Rotation2d getAngle() {
+    public Rotation2d getAngle() {
         return Rotation2d.fromDegrees(mAngleMotor.getEncoder().getPosition());
     }
 

@@ -1,7 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -9,15 +9,19 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.*;
 
+import com.ctre.phoenix.motorcontrol.TalonSRXSimCollection;
+
 public class GripSubsystem extends SubsystemBase {
-    private final TalonSRX gripMotor;
+    private final WPI_TalonSRX gripMotor;
+    private final TalonSRXSimCollection gripMotorSim;
 
     private double gripSpeed;
 
     public GripSubsystem() {
         ShuffleboardTab tab = Shuffleboard.getTab("Manipulator");
 
-        this.gripMotor = new TalonSRX(Manipulator.GRIP_MOTOR_ID);
+        this.gripMotor = new WPI_TalonSRX(Manipulator.GRIP_MOTOR_ID);
+        this.gripMotorSim = this.gripMotor.getSimCollection();
 
         tab.addDouble("Grip Pos", () -> getGripPos());
     }

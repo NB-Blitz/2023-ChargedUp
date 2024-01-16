@@ -17,6 +17,7 @@ import frc.robot.commands.TeleopSwerve;
 import frc.robot.subsystems.GripSubsystem;
 import frc.robot.subsystems.ManipulatorSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.simulation.FieldSim;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -32,6 +33,7 @@ public class RobotContainer {
     private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
     private final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem();
     private final GripSubsystem gripSubsystem = new GripSubsystem();
+    private final FieldSim m_fieldSim = new FieldSim(swerveSubsystem);
 
     private final Joystick joystick = new Joystick(0);
     private final XboxController controller = new XboxController(1);
@@ -82,6 +84,8 @@ public class RobotContainer {
         gripSubsystem.setDefaultCommand(new GripCommand(
             gripSubsystem,
             () -> translateTriggers(controller.getLeftTriggerAxis(), controller.getRightTriggerAxis())));
+    
+        m_fieldSim.initSim();
     }
 
     /**
@@ -139,4 +143,19 @@ public class RobotContainer {
         if (right) result++;
         return result;
     }
+
+    public void periodic() {
+        //checkDSUpdate();
+    
+        m_fieldSim.periodic();
+        //m_mechanismSimulator.periodic();
+    
+        // TODO: Fix, This crashes code
+        // if(m_timeOfFlight.sensorDetected()){
+        //   m_CurrentPitchIntakeCommand = m_LowPitchIntakeCommand;
+        // }
+        // else{
+        //   m_CurrentPitchIntakeCommand = m_HighPitchIntakeCommand;
+        // }
+      }
 }

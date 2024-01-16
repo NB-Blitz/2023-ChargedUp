@@ -7,14 +7,19 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.util.Units;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.revrobotics.REVPhysicsSim;
+import com.ctre.phoenix.unmanaged.Unmanaged;
 
+import edu.wpi.first.hal.simulation.RoboRioDataJNI;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -22,11 +27,25 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SwerveSubsystem extends SubsystemBase {
+    public static final double kTrackWidth = Units.inchesToMeters(18.5);// 0.5;
+    // Distance between centers of right and left wheels on robot
+    public static final double kWheelBase = Units.inchesToMeters(20.5);// 0.7;
+    // Distance between front and back wheels on robot
+  
+    public static final Translation2d[] kModuleTranslations = {
+        new Translation2d(kWheelBase / 2, kTrackWidth / 2),
+        new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
+        new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
+        new Translation2d(-kWheelBase / 2, -kTrackWidth / 2)
+    };
+
     public SwerveDriveOdometry swerveOdometry;
     public SwerveModule[] mSwerveMods;
 
     public AHRS gyro;
     private double gyroOffset;
+    private double m_simYaw;
+    private double m_simYawRawHeading;
 
     private PIDController autoPitchController;
 
@@ -121,6 +140,10 @@ public class SwerveSubsystem extends SubsystemBase {
     public void zeroGyro(){
         gyro.zeroYaw();
         gyroOffset = getRawYaw();
+        if (RobotBase.isSimulation()) {
+            m_simYaw = 0;
+            m_simYawRawHeading = 0;
+        }
     }
 
     public Rotation2d getYaw() {
@@ -128,15 +151,24 @@ public class SwerveSubsystem extends SubsystemBase {
         if (adjusted < 0) {
             adjusted = 360 + adjusted;
         }
-        return Rotation2d.fromDegrees(adjusted);
+        if (RobotBase.isReal())
+            return Rotation2d.fromDegrees(adjusted);
+        else
+            return Rotation2d.fromDegrees(getRawYaw());
     }
 
     public double getRawYaw() {
-        return Constants.Swerve.invertGyro ? 360 - gyro.getFusedHeading() : gyro.getFusedHeading();
+        if (RobotBase.isReal())
+            return Constants.Swerve.invertGyro ? 360 - gyro.getFusedHeading() : gyro.getFusedHeading();
+        else
+            return Constants.Swerve.invertGyro ? (360 - m_simYawRawHeading) : m_simYawRawHeading;
     }
 
     public double getPitch() {
-        return Constants.Swerve.invertGyro ? -1 * gyro.getPitch() : gyro.getPitch();
+        if (RobotBase.isReal())
+            return Constants.Swerve.invertGyro ? -1 * gyro.getPitch() : gyro.getPitch();
+        else
+            return 0;
     }
 
     public void resetModulesToAbsolute(){
@@ -150,7 +182,19 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveOdometry.update(getYaw(), getModulePositions());
     }
 
+    public void simulationPeriodic() {
+        REVPhysicsSim.getInstance().run();
+        ChassisSpeeds chassisSpeed = Constants.Swerve.swerveKinematics.toChassisSpeeds(getModuleStates());
+        m_simYaw += chassisSpeed.omegaRadiansPerSecond * 0.02;
+    
+        m_simYawRawHeading = (-Units.radiansToDegrees(m_simYaw));
+    }
+
     public PIDController getAutoPitchController() {
         return autoPitchController;
+    }
+
+    public SwerveModule getSwerveModule(int moduleNumber) {
+        return mSwerveMods[moduleNumber];
     }
 }
